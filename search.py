@@ -72,46 +72,55 @@ def tinyMazeSearch(problem):
     w = Directions.WEST
     return  [s, s, w, s, w, w, s, w]
 
-def depthFirstSearch(problem):
-    fringe = util.Stack()
-    fringe.push((problem.getStartState(), []))
-    expanded = set()
+def depthFirstSearch(problem: SearchProblem):
+    """
+    Search the deepest nodes in the search tree first.
 
-    while not fringe.isEmpty():
-        state, path = fringe.pop()
+    Your search algorithm needs to return a list of actions that reaches the
+    goal. Make sure to implement a graph search algorithm.
 
-        if problem.isGoalState(state):
-            return path
+    To get started, you might want to try some of these simple commands to
+    understand the search problem that is being passed in:
 
-        if state not in expanded:
-            expanded.add(state)
-            for successor, action, stepCost in problem.getSuccessors(state):
-                fringe.push((successor, path + [action]))
-
-    return []
-
-def breadthFirstSearch(problem):
-    fringe = util.Queue()
-    fringe.push((problem.getStartState(), []))
-    expanded = set()
-
-    while not fringe.isEmpty():
-        state, path = fringe.pop()
-
-        if problem.isGoalState(state):
-            return path
-
-        if state not in expanded:
-            expanded.add(state)
-            for successor, action, stepCost in problem.getSuccessors(state):
-                fringe.push((successor, path + [action]))
-
-    return []
-
-def uniformCostSearch(problem: SearchProblem):
-    """Search the node of least total cost first."""
+    print("Start:", problem.getStartState())
+    print("Is the start a goal?", problem.isGoalState(problem.getStartState()))
+    print("Start's successors:", problem.getSuccessors(problem.getStartState()))
+    """
     "*** YOUR CODE HERE ***"
     util.raiseNotDefined()
+
+def breadthFirstSearch(problem: SearchProblem):
+    """Search the shallowest nodes in the search tree first."""
+    "*** YOUR CODE HERE ***"
+    util.raiseNotDefined()
+
+def uniformCostSearch(problem: SearchProblem):
+    from util import PriorityQueue
+    # Fringe: priority queue ordered by accumulated path cost g
+    fringe = PriorityQueue()
+    # Push the start state with (state, actions, cost) and priority 0
+    startState = problem.getStartState()
+    fringe.push((startState, [], 0), 0)
+
+    # Track expanded states (graph search, not tree search)
+    expanded = set()
+
+    while not fringe.isEmpty():
+        # Pop the lowest-cost node
+        state, actions, cost = fringe.pop()
+        # Goal test on pop
+        if problem.isGoalState(state):
+            return actions
+        # Graph search: only expand a state once
+        if state not in expanded:
+            expanded.add(state)
+            for successor, action, stepCost in problem.getSuccessors(state):
+                newActions = actions + [action]
+                newCost = cost + stepCost
+                # Priority = accumulated cost g
+                fringe.push((successor, newActions, newCost), newCost)
+
+    return []  # failure
 
 def nullHeuristic(state, problem=None):
     """
@@ -121,10 +130,33 @@ def nullHeuristic(state, problem=None):
     return 0
 
 def aStarSearch(problem: SearchProblem, heuristic=nullHeuristic):
-    """Search the node that has the lowest combined cost and heuristic first."""
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
 
+    from util import PriorityQueue
+    fringe = PriorityQueue()
+
+    startState = problem.getStartState()
+    # Priority = g + h = 0 + h(start)
+    fringe.push((startState, [], 0), heuristic(startState, problem))
+
+    expanded = set()
+
+    while not fringe.isEmpty():
+        state, actions, cost = fringe.pop()
+
+        if problem.isGoalState(state):
+            return actions
+
+        if state not in expanded:
+            expanded.add(state)
+
+            for successor, action, stepCost in problem.getSuccessors(state):
+                newActions = actions + [action]
+                newCost = cost + stepCost
+                # Priority = g + h
+                priority = newCost + heuristic(successor, problem)
+                fringe.push((successor, newActions, newCost), priority)
+
+    return []  # failure
 
 # Abbreviations
 bfs = breadthFirstSearch
