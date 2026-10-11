@@ -152,7 +152,7 @@ def aStarSearch(problem: SearchProblem, heuristic=nullHeuristic):
             for successor, action, stepCost in problem.getSuccessors(state):
                 newActions = actions + [action]
                 newCost = cost + stepCost
-                # Priority = g + h
+                # Priority = g + hgit log --oneline -5
                 priority = newCost + heuristic(successor, problem)
                 fringe.push((successor, newActions, newCost), priority)
 
