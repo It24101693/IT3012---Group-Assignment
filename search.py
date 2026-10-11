@@ -72,46 +72,54 @@ def tinyMazeSearch(problem):
     w = Directions.WEST
     return  [s, s, w, s, w, w, s, w]
 
-def depthFirstSearch(problem):
-    fringe = util.Stack()
-    fringe.push((problem.getStartState(), []))
-    expanded = set()
+def depthFirstSearch(problem: SearchProblem):
+    """
+    Search the deepest nodes in the search tree first.
 
-    while not fringe.isEmpty():
-        state, path = fringe.pop()
+    Your search algorithm needs to return a list of actions that reaches the
+    goal. Make sure to implement a graph search algorithm.
 
-        if problem.isGoalState(state):
-            return path
+    To get started, you might want to try some of these simple commands to
+    understand the search problem that is being passed in:
 
-        if state not in expanded:
-            expanded.add(state)
-            for successor, action, stepCost in problem.getSuccessors(state):
-                fringe.push((successor, path + [action]))
+    print("Start:", problem.getStartState())
+    print("Is the start a goal?", problem.isGoalState(problem.getStartState()))
+    print("Start's successors:", problem.getSuccessors(problem.getStartState()))
+    """
+    "*** YOUR CODE HERE ***"
+    util.raiseNotDefined()
 
-    return []
-
-def breadthFirstSearch(problem):
-    fringe = util.Queue()
-    fringe.push((problem.getStartState(), []))
-    expanded = set()
-
-    while not fringe.isEmpty():
-        state, path = fringe.pop()
-
-        if problem.isGoalState(state):
-            return path
-
-        if state not in expanded:
-            expanded.add(state)
-            for successor, action, stepCost in problem.getSuccessors(state):
-                fringe.push((successor, path + [action]))
-
-    return []
+def breadthFirstSearch(problem: SearchProblem):
+    """Search the shallowest nodes in the search tree first."""
+    "*** YOUR CODE HERE ***"
+    util.raiseNotDefined()
 
 def uniformCostSearch(problem: SearchProblem):
     """Search the node of least total cost first."""
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    from util import PriorityQueue
+
+    start = problem.getStartState()
+    frontier = PriorityQueue()
+    frontier.push((start, [], 0), 0)
+    best_cost = {start: 0}
+
+    while not frontier.isEmpty():
+        state, actions, cost_so_far = frontier.pop()
+
+        # Ignore queue entries superseded by a cheaper route.
+        if cost_so_far > best_cost.get(state, float('inf')):
+            continue
+
+        if problem.isGoalState(state):
+            return actions
+
+        for successor, action, step_cost in problem.getSuccessors(state):
+            new_cost = cost_so_far + step_cost
+            if new_cost < best_cost.get(successor, float('inf')):
+                best_cost[successor] = new_cost
+                frontier.push((successor, actions + [action], new_cost), new_cost)
+
+    return []
 
 def nullHeuristic(state, problem=None):
     """
